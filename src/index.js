@@ -2,33 +2,7 @@ import "./pages/index.css";
 import { createCard, deleteCard } from "./scripts/card";
 import { openModal } from "./scripts/modal";
 import { closeModal } from "./scripts/modal";
-
-const initialCards = [
-  {
-    name: "Архыз",
-    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/arkhyz.jpg",
-  },
-  {
-    name: "Челябинская область",
-    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/chelyabinsk-oblast.jpg",
-  },
-  {
-    name: "Иваново",
-    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/ivanovo.jpg",
-  },
-  {
-    name: "Камчатка",
-    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/kamchatka.jpg",
-  },
-  {
-    name: "Холмогорский район",
-    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/kholmogorsky-rayon.jpg",
-  },
-  {
-    name: "Байкал",
-    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/baikal.jpg",
-  },
-];
+import { initialCards } from "./scripts/card";
 
 import addIconImage from "./images/add-icon.svg";
 import avatarImage from "./images/avatar.jpg";
@@ -58,16 +32,23 @@ const projectImages = [
 
 const template = document.querySelector("#card-template");
 const places = document.querySelector(".places__list");
+
 const profileEditButton = document.querySelector(".profile__edit-button");
 const profileEditPopup = document.querySelector(".popup_type_edit");
 const profileAddButton = document.querySelector(".profile__add-button");
 const profileAddPopup = document.querySelector(".popup_type_new-card");
+
 const popups = document.querySelectorAll(".popup");
+const modal = document.querySelector(".popup_type_image");
+const modalImage = modal.querySelector(".popup__image");
+const modalImageName = modal.querySelector(".popup__caption");
 
 const popupCloseButtons = document.querySelectorAll(".popup__close");
-const submit = document.querySelectorAll(".popup__button");
+const popupButton = document.querySelectorAll(".popup__button");
+
 const newPlaceForm = document.querySelector('form[name="new-place"]');
 const editProfileForm = document.querySelector('form[name="edit-profile"]');
+
 const nameInput = document.querySelector(".popup__input_type_name");
 const jobInput = document.querySelector(".popup__input_type_description");
 const profileTitle = document.querySelector(".profile__title");
@@ -80,31 +61,48 @@ const cardLinkValue = newPlaceForm.querySelector(".popup__input_type_url");
 
 function addNewCard(evt) {
   evt.preventDefault();
+
   const cardName = cardNameValue.value;
   const cardLink = cardLinkValue.value;
-  const newCard = createCard({ name: cardName, link: cardLink }, deleteCard);
+  const newCard = createCard(
+    { name: cardName, link: cardLink },
+    deleteCard,
+    openImage
+  );
   places.prepend(newCard);
   newPlaceForm.reset();
+
+  popupButton.forEach((button) => {
+    const modal = button.closest(".popup");
+    button.addEventListener("click", () => closeModal(modal));
+  });
 }
 newPlaceForm.addEventListener("submit", addNewCard);
 
-function handleFormSubmit(evt) {
+function editProfile(evt) {
   evt.preventDefault();
 
   profileTitle.textContent = nameInput.value;
   profileDescription.textContent = jobInput.value;
-}
-editProfileForm.addEventListener("submit", handleFormSubmit);
 
-function openImage(img) {
-  const modal = document.querySelector(".popup_type_image");
-  const modalImage = modal.querySelector(".popup__image");
+  popupButton.forEach((button) => {
+    const modal = button.closest(".popup");
+    button.addEventListener("click", () => closeModal(modal));
+  });
+}
+editProfileForm.addEventListener("submit", editProfile);
+
+function openImage(img, name) {
   modalImage.src = img;
+  modalImage.alt = name;
+
+  modalImageName.textContent = name;
+
   openModal(modal);
 }
 
 initialCards.forEach(function (element) {
-  const card = createCard(element, deleteCard);
+  const card = createCard(element, deleteCard, openImage);
   places.append(card);
 });
 
@@ -126,14 +124,14 @@ popups.forEach((popup) => {
   });
 });
 
-submit.forEach((button) => {
-  const modal = button.closest(".popup");
-  button.addEventListener("click", () => closeModal(modal));
-});
+// popupButton.forEach((button) => {
+//   const modal = button.closest(".popup");
+//   button.addEventListener("click", () => closeModal(modal));
+// });
 popupCloseButtons.forEach((button) => {
   const modal = button.closest(".popup");
 
   button.addEventListener("click", () => closeModal(modal));
 });
 
-export { template, profileEditButton, openImage };
+export { template, profileEditButton };

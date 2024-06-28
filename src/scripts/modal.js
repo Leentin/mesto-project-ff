@@ -1,6 +1,6 @@
 function handleEscPress(evt) {
   const openedModal = document.querySelector(".popup_is-opened");
-  if (evt.keyCode == 27) {
+  if (evt.key == "Escape") {
     closeModal(openedModal);
   }
 }
