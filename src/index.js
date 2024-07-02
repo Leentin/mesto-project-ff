@@ -2,7 +2,7 @@ import "./pages/index.css";
 import { createCard, deleteCard } from "./scripts/card";
 import { openModal } from "./scripts/modal";
 import { closeModal } from "./scripts/modal";
-import { initialCards } from "./scripts/card";
+import { initialCards } from "./scripts/cards";
 
 import addIconImage from "./images/add-icon.svg";
 import avatarImage from "./images/avatar.jpg";
@@ -39,12 +39,12 @@ const profileAddButton = document.querySelector(".profile__add-button");
 const profileAddPopup = document.querySelector(".popup_type_new-card");
 
 const popups = document.querySelectorAll(".popup");
-const modal = document.querySelector(".popup_type_image");
-const modalImage = modal.querySelector(".popup__image");
-const modalImageName = modal.querySelector(".popup__caption");
+const modalPopupImage = document.querySelector(".popup_type_image");
+const modalImage = modalPopupImage.querySelector(".popup__image");
+const modalImageName = modalPopupImage.querySelector(".popup__caption");
 
 const popupCloseButtons = document.querySelectorAll(".popup__close");
-const popupButton = document.querySelectorAll(".popup__button");
+const popupButtonList = document.querySelectorAll(".popup__button");
 
 const newPlaceForm = document.querySelector('form[name="new-place"]');
 const editProfileForm = document.querySelector('form[name="edit-profile"]');
@@ -72,10 +72,7 @@ function addNewCard(evt) {
   places.prepend(newCard);
   newPlaceForm.reset();
 
-  popupButton.forEach((button) => {
-    const modal = button.closest(".popup");
-    button.addEventListener("click", () => closeModal(modal));
-  });
+  closeModal(profileAddPopup);
 }
 newPlaceForm.addEventListener("submit", addNewCard);
 
@@ -85,10 +82,7 @@ function editProfile(evt) {
   profileTitle.textContent = nameInput.value;
   profileDescription.textContent = jobInput.value;
 
-  popupButton.forEach((button) => {
-    const modal = button.closest(".popup");
-    button.addEventListener("click", () => closeModal(modal));
-  });
+  closeModal(profileEditPopup);
 }
 editProfileForm.addEventListener("submit", editProfile);
 
@@ -98,7 +92,7 @@ function openImage(img, name) {
 
   modalImageName.textContent = name;
 
-  openModal(modal);
+  openModal(modalPopupImage);
 }
 
 initialCards.forEach(function (element) {
@@ -124,10 +118,6 @@ popups.forEach((popup) => {
   });
 });
 
-// popupButton.forEach((button) => {
-//   const modal = button.closest(".popup");
-//   button.addEventListener("click", () => closeModal(modal));
-// });
 popupCloseButtons.forEach((button) => {
   const modal = button.closest(".popup");
 
