@@ -1,63 +1,64 @@
-import { template } from "../index";
-import { initialCards } from "./cards";
+import { template } from '../index'
+import { dislikeCard, likeCard, removeCard } from './api'
 
-// const initialCards = [
-//   {
-//     name: "Архыз",
-//     link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/arkhyz.jpg",
-//   },
-//   {
-//     name: "Челябинская область",
-//     link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/chelyabinsk-oblast.jpg",
-//   },
-//   {
-//     name: "Иваново",
-//     link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/ivanovo.jpg",
-//   },
-//   {
-//     name: "Камчатка",
-//     link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/kamchatka.jpg",
-//   },
-//   {
-//     name: "Холмогорский район",
-//     link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/kholmogorsky-rayon.jpg",
-//   },
-//   {
-//     name: "Байкал",
-//     link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/baikal.jpg",
-//   },
-// ];
+function createCard(data, deleteCard, openImage, userId) {
+  const newCard = template.content.querySelector('.card').cloneNode(true)
 
-function createCard(data, deleteCard, openImage) {
-  const newCard = template.content.querySelector(".card").cloneNode(true);
+  const cardDeleteButton = newCard.querySelector('.card__delete-button')
+  const cardName = newCard.querySelector('.card__title')
+  const cardImage = newCard.querySelector('.card__image')
+  const cardLike = newCard.querySelector('.card__like-button')
+  const cardLikeCounter = newCard.querySelector('.card__like-counter')
 
-  const cardDeleteButton = newCard.querySelector(".card__delete-button");
-  const cardName = newCard.querySelector(".card__title");
-  const cardImage = newCard.querySelector(".card__image");
-  const cardLike = newCard.querySelector(".card__like-button");
+  cardName.textContent = data.name
+  cardImage.src = data.link
+  newCard.id = data._id
+  cardLikeCounter.textContent = data.likes.length
 
-  cardName.textContent = data.name;
-  cardImage.src = data.link;
+  if (data.likes.find((like) => like._id === userId)) {
+    cardLike.classList.add('card__like-button_is-active')
+  }
 
-  cardDeleteButton.addEventListener("click", () => {
-    deleteCard(newCard);
-  });
+  if (data.owner._id === userId) {
+    cardDeleteButton.addEventListener('click', () => {
+      deleteCard(newCard)
+    })
+  } else {
+    cardDeleteButton.remove()
+  }
 
-  cardImage.addEventListener("click", () => {
-    openImage(data.link, data.name);
-  });
+  cardImage.addEventListener('click', () => {
+    openImage(data.link, data.name)
+  })
 
-  cardLike.addEventListener("click", handleLikeCard);
+  cardLike.addEventListener('click', (evt) => handleLikeCard(evt, data, userId))
 
-  return newCard;
+  return newCard
 }
 
-function handleLikeCard(evt) {
-  evt.target.classList.toggle("card__like-button_is-active");
+function handleLikeCard(evt, card, userId) {
+  const likeBlock = evt.target.closest('.card__like')
+  const likeButton = likeBlock.querySelector('.card__like-button')
+  const likeCounter = likeBlock.querySelector('.card__like-counter')
+  if (card.likes.find((like) => like._id === userId)) {
+    dislikeCard(card._id).then((res) => {
+      card.likes = res.likes
+      likeButton.classList.remove('card__like-button_is-active')
+      likeCounter.textContent = res.likes.length
+    })
+  } else {
+    likeCard(card._id).then((res) => {
+      card.likes = res.likes
+      likeButton.classList.add('card__like-button_is-active')
+      likeCounter.textContent = res.likes.length
+    })
+  }
 }
 
 function deleteCard(card) {
-  card.remove();
+  removeCard(card.id).then((res) => {
+    card.remove()
+  })
 }
 
-export { createCard, deleteCard, initialCards };
+export { createCard, deleteCard }
