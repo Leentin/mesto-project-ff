@@ -222,5 +222,3 @@ Promise.all([getUserInfo(), getInitialCards()])
   });
 
 enableValidation(validationConfig);
-
-export { profileEditButton };
